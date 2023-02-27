@@ -119,6 +119,16 @@ function StudyList(props) {
     .map(field => field.size)
     .reduce((prev, next) => prev + next);
 
+  const studiesByPatientID = studies.reduce((acc, study) => {
+    const { PatientID } = study;
+    if (acc[PatientID]) {
+      acc[PatientID].push(study);
+    } else {
+      acc[PatientID] = [study];
+    }
+    return acc;
+  }, {});
+
   return translationsAreReady ? (
     <table className="table table--striped table--hoverable">
       <colgroup>
@@ -176,17 +186,17 @@ function StudyList(props) {
           </tr>
         )}
         {!isLoading &&
-          studies.map((study, index) => (
+          Object.values(studiesByPatientID).map((group, index) => (
             <TableRow
-              key={`${study.StudyInstanceUID}-${index}`}
+              key={`group-${index}`}
               onClick={StudyInstanceUID => handleSelectItem(StudyInstanceUID)}
-              AccessionNumber={study.AccessionNumber || ''}
-              modalities={study.modalities}
-              PatientID={study.PatientID || ''}
-              PatientName={study.PatientName || ''}
-              StudyDate={study.StudyDate}
-              StudyDescription={study.StudyDescription || ''}
-              StudyInstanceUID={study.StudyInstanceUID}
+              AccessionNumber={group[0].AccessionNumber || ''}
+              modalities={group[0].modalities}
+              PatientID={group[0].PatientID || ''}
+              PatientName={group[0].PatientName || ''}
+              StudyDate={group[0].StudyDate}
+              StudyDescription={group[0].StudyDescription || ''}
+              StudyInstanceUID={group[0].StudyInstanceUID}
               displaySize={displaySize}
             />
           ))}
